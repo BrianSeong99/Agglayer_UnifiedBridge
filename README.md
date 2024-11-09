@@ -123,7 +123,7 @@ There are two types of bridging transactions on Unified Bridge.
 
 ### Assets Bridging
 
-**`BridgeAsset` code can be found [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMBridgeV2.sol#L204), the interface looks as follows: ** 
+**`BridgeAsset` code can be found [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMBridgeV2.sol#L204), the interface looks as follows:** 
 
 ```solidity
 /**
@@ -234,7 +234,7 @@ Then the code will go through a few steps to complete the claiming process:
 
 ### Message Bridging
 
-**`BridgeMessage` & `BridgeMessageWETH` code can be found [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMBridgeV2.sol#L325), the interface looks as follows: ** 
+**`BridgeMessage` & `BridgeMessageWETH` code can be found [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMBridgeV2.sol#L325), the interface looks as follows:** 
 
 ```solidity
 /**
@@ -279,7 +279,7 @@ The code go through a few steps to complete the bridging process:
 3. Emit the `BridgeEvent`
 4. Add the `bridgeMessage` / `bridgeMessageWETH`  data to the `Local Exit Tree` as a leaf node.
 
-**`ClaimMessage` code can be found [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMBridgeV2.sol#L599), the interface looks as follows: ** 
+**`ClaimMessage` code can be found [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMBridgeV2.sol#L599), the interface looks as follows:** 
 
 ```solidity
 /**
@@ -354,7 +354,7 @@ Consist of multiple interface, helper contracts, as well as the extension contra
 
 ### BridgeExtention.sol
 
-**`bridgeAndCall` code can be found [here](https://github.com/agglayer/lxly-bridge-and-call/blob/755088953ddd2f586a2009ae34a33ae12e60f0eb/src/BridgeExtension.sol#L29), the interface looks as follows: ** 
+**`bridgeAndCall` code can be found [here](https://github.com/agglayer/lxly-bridge-and-call/blob/755088953ddd2f586a2009ae34a33ae12e60f0eb/src/BridgeExtension.sol#L29), the interface looks as follows:** 
 
 ```solidity
 /**
@@ -388,7 +388,7 @@ the code will go through a few steps to complete the bridging process:
 3. Check if `bridgeAsset` was successful, if successful then next step.
 4. Encode message to bridge and call `bridgeMessage`
 
-**`onMessageReceived` code can be found [here](https://github.com/agglayer/lxly-bridge-and-call/blob/755088953ddd2f586a2009ae34a33ae12e60f0eb/src/BridgeExtension.sol#L218), the interface looks as follows: ** 
+**`onMessageReceived` code can be found [here](https://github.com/agglayer/lxly-bridge-and-call/blob/755088953ddd2f586a2009ae34a33ae12e60f0eb/src/BridgeExtension.sol#L218), the interface looks as follows:** 
 
 ```solidity
 /**
