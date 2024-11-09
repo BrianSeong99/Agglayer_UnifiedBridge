@@ -30,6 +30,7 @@ This repo explains the design and usage of Unified Bridge and Bridge-and-Call.
   - [3. Unified Bridge Components](#3-unified-bridge-components)
     - [Unified Bridge Contracts](#unified-bridge-contracts)
     - [Bridge Service](#bridge-service)
+    - [Tools](#tools)
   - [4. Bridging Interface in Unified Bridge](#4-bridging-interface-in-unified-bridge)
     - [Assets Bridging](#assets-bridging)
     - [Message Bridging](#message-bridging)
@@ -128,7 +129,7 @@ Once the RollupManager has updated its `rollupExitRoot`, it will then update the
 
 ## 3. Unified Bridge Components
 
-There are two main components of Unified Bridge, the on-chain contracts, and the off-chain services, let's go through them one by one.
+There are two main components of Unified Bridge, the on-chain contracts, and the off-chain services, and additional tools to help interact with Unified Bridge. Let's go through them one by one.
 
 ### Unified Bridge Contracts
 
@@ -154,8 +155,9 @@ Consists of important [contracts](https://github.com/0xPolygonHermez/zkevm-contr
     - `networkId` is the network ID registered on AggLayer, `0` for Ethereum/Sepolia, and `1` for Polygon zkEVM/Cardona, and more.
     - `depositCount` is the leaf index of the Local Exit Tree from the source chain(Explained in the next section). You can get the depositCount by checking the `bridgeAsset`/`bridgeMessage` event logs or use the Transaction API above to get the depositCount.
 
-- **Claimer**: Anyone who wants to help finish the bridging process can become the claimer. Claim Service can be deployed by dapps, chains, or anyone. There's also [auto claiming script](https://github.com/0xPolygon/auto-claim-service) available, which automates the claim process on the destination chain.
+### Tools
 
+- **Claimer**: Anyone who wants to help finish the bridging process can become the claimer. Claim Service can be deployed by dapps, chains, or anyone. There's also [auto claiming script](https://github.com/0xPolygon/auto-claim-service) available, which automates the claim process on the destination chain.
 - **[Lxly.js](https://github.com/0xpolygon/lxly.js?tab=readme-ov-file)**: LxLy.js is javascript library which has all the prebuilt functions for interacting with the lxly bridge contracts. It does most of the heavy lifting, like type conversion, formatting, error handling etc. It makes it very easy for a developer to invoke the bridge, claim and many other functions required for bridging.
 
 ![Unified Bridge](./pics/UnifiedBridgeDiagram.png)
