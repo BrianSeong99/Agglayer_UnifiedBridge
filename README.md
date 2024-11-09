@@ -1,10 +1,56 @@
 # Unified Bridge & Bridge-and-Call
 
+<div align="center">
+  <p align="center">
+    <a href="http://makeapullrequest.com">
+      <img alt="pull requests welcome badge" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat">
+    </a>
+    <a href="https://twitter.com/BrianSeong99">
+      <img alt="Twitter" src="https://img.shields.io/twitter/url/https/twitter.com/BrianSeong99.svg?style=social&label=Follow%20%40BrianSeong99">
+    </a>
+  </p>
+</div>
+
 This repo explains the design and usage of Unified Bridge and Bridge-and-Call.
 
 **Table of Contents**
 
+- [Unified Bridge \& Bridge-and-Call](#unified-bridge--bridge-and-call)
 - [Architecture of the Unified Bridge](#architecture-of-the-unified-bridge)
+  - [0. Background](#0-background)
+    - [L2s and Fragmentation](#l2s-and-fragmentation)
+    - [What is AggLayer](#what-is-agglayer)
+  - [1. Introduction to Unified Bridge](#1-introduction-to-unified-bridge)
+    - [Why do we need Unified Bridge](#why-do-we-need-unified-bridge)
+  - [2. Data Structure in Unified Bridge](#2-data-structure-in-unified-bridge)
+    - [Local Exit Root \& Local Index](#local-exit-root--local-index)
+    - [Rollup Exit Root](#rollup-exit-root)
+    - [Mainnet Exit Root](#mainnet-exit-root)
+    - [Global Exit Root, L1 Info Tree, Global Index:](#global-exit-root-l1-info-tree-global-index)
+  - [3. Unified Bridge Components](#3-unified-bridge-components)
+    - [Unified Bridge Contracts](#unified-bridge-contracts)
+    - [Bridge Service](#bridge-service)
+  - [4. Bridging Interface in Unified Bridge](#4-bridging-interface-in-unified-bridge)
+    - [Assets Bridging](#assets-bridging)
+    - [Message Bridging](#message-bridging)
+  - [5. Bridge-and-Call](#5-bridge-and-call)
+    - [Bridge-and-Call Components](#bridge-and-call-components)
+  - [6. Bridging Interface in Bridge-and-Call](#6-bridging-interface-in-bridge-and-call)
+    - [BridgeExtention.sol](#bridgeextentionsol)
+    - [JumpPoint.sol](#jumppointsol)
+- [Using it as a Developer](#using-it-as-a-developer)
+  - [L1 -\> L2 using `BridgeAsset` interface in `Lxly.js`:](#l1---l2-using-bridgeasset-interface-in-lxlyjs)
+    - [Flow for L1 -\> L2 Bridging Transactions](#flow-for-l1---l2-bridging-transactions)
+    - [Code Walkthrough](#code-walkthrough)
+  - [L2 -\> L1 using `BridgeMessage` interface in `Lxly.js`:](#l2---l1-using-bridgemessage-interface-in-lxlyjs)
+    - [Flow for L2 -\> L1 Bridging Transactions](#flow-for-l2---l1-bridging-transactions)
+    - [Code Walkthrough](#code-walkthrough-1)
+  - [L2 -\> L2 using `Bridge-and-Call` in Lxly.js:](#l2---l2-using-bridge-and-call-in-lxlyjs)
+    - [Flow for L2 -\> L2 Bridging Transactions](#flow-for-l2---l2-bridging-transactions)
+    - [Code Walkthrough](#code-walkthrough-2)
+- [Future TODO](#future-todo)
+- [Reference](#reference)
+
 
 # Architecture of the Unified Bridge
 
@@ -94,7 +140,7 @@ Consists of important [contracts](https://github.com/0xPolygonHermez/zkevm-contr
 - `PolygonZkEVMGlobalExitRootV2.sol`: Global Exit Root contract on L1 and L2, its root is updated every time when a new Rollup Exit Root or Mainnet Exit Root is updated.
 - and others.
 
-### **Bridge Service**
+### Bridge Service
 - **[Chain Indexer Framework](https://docs.polygon.technology/tools/chain-indexer-framework/overview/#2-why-do-dapps-need-a-blockchain-data-indexer)**: An EVM blockchain data indexer. It parses, sort, and organizes blockchain data for the Bridge Service API. Each chain connected to AggLayer will have its own indexer instance.
 
 - **Transaction API**: All details of a bridge transaction initiated by or incoming to a user’s walletAddress. Details include the real time status, the token bridged, the amount, the source and destination chain etc. Used for the user interface to display the status of the transaction. 
@@ -442,9 +488,7 @@ The assets transferred from source chain via `bridgeAsset` should have already t
 2. Depending on the token type, transfer the token accordingly to the final `callAddress`, and then do the smart contract call with `callData`
 3. If the execution fails on the `callAddress` contract, tokens are transferred to `fallbackAddress`.
 
-
 # Using it as a Developer
-
 
 ## L1 -> L2 using `BridgeAsset` interface in `Lxly.js`:
 
@@ -484,8 +528,6 @@ You can test out the process via:
 5. Bridge contract on destination L1 chain validates the smtProof against the global exit root on its chain. If passes next step.
 6. Execute `onMessageReceived` process.
 
-TODO ![L2 to L1 bridging process Graph]()
-
 ### Code Walkthrough
 
 We will be using `lxly.js` to initiate the `bridgeMessage` call and `claimMessage` call.
@@ -510,8 +552,6 @@ You can test out the process via:
 3. Then destination L2 sequencer fetches and update the latest global exit root from the global exit root manager.
 4. Bridge contract on destination L2 chain validates the smtProof against the global exit root on its chain. If passes next step.
 5. Process the `claimAsset`, `claimMessage` on destination L2 chain.
-
-TODO ![L2 to L2 bridging process Graph]()
 
 ### Code Walkthrough
 
