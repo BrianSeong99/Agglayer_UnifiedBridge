@@ -153,16 +153,18 @@ function bridgeAsset(
 The code go through a few steps to complete the bridging process:
 1. Check the `destinationNetwork` is not set as the source network's ID.
 2. Prepare tokens to be bridged, there are different ways to prepare the tokens to be bridged, depending on the token type:
+
 | Token type | Action |
 | --- | --- |
 | Native Gas Token, including ETH and Custom Gas Token | The bridge contract holds the tokens. |
 | WETH | Burn the `WETH` tokens from user's address. |
 | Foreign ERC20 Token | If the token contract is not originally from the source network, burn the ERC20 token from user's address. |
 | Native ERC20 Token | If the token contract is originally from the source network, run the `permitData` if provided, then transfer the ERC20 token from user's address to the bridge contract. |
+
 > Note that in case `ETH` is the native token, WETHToken will be at `0x0` address.
 
-3. Emit the `BridgeEvent`
-4. Add the `bridgeAsset` data to the `Local Exit Tree` as a leaf node
+1. Emit the `BridgeEvent`
+2. Add the `bridgeAsset` data to the `Local Exit Tree` as a leaf node
 
 **`claimAsset` code can be found [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMBridgeV2.sol#L446), the interface looks as follows:**
 
@@ -218,6 +220,7 @@ Then the code will go through a few steps to complete the claiming process:
       - if L2 then verify the L2 leaf node with `smtProofLocalExitRoot`, `smtProofRollupExitRoot`, and `rollupExitRoot`
    3. Record that its claimed on the destination network.
 3. Once the proof passes, claim the tokens in different ways depending on the token type:
+
 | Token type | Action |
 | --- | --- |
 | ETH is gas token | Bridge contract will transfer the amount from itself to the destination address. |
