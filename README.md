@@ -508,16 +508,94 @@ The assets transferred from source chain via `bridgeAsset` should have already t
 
 We will be using `lxly.js` to initiate the `bridgeAsset` call and `claimAsset` call.
 
+1. Check your Balance: `node scripts/src/balance.js`
+
 ```javascript
+const { getLxLyClient, tokens, configuration, from } = require('./utils/utils_lxly');
+
+const execute = async () => {
+  // instantiate a lxlyclient
+  const client = await getLxLyClient();
+  // get an api instance of ether token on sepolia testnet
+  const erc20Token = client.erc20(tokens[0].ether, 0);
+	// check balance
+  const result = await erc20Token.getBalance(from);
+  console.log("result", result);
+}
+
+execute().then(() => {
+}).catch(err => {
+  console.error("err", err);
+}).finally(_ => {
+  process.exit(0);
+});
 
 ```
 
-You can test out the process via:
+2. Bridge Eth from sepolia to Cardona: `node scripts/src/bridge_asset.js`
 
-```bash
+```javascript
+const { getLxLyClient, tokens, configuration, from, to } = require('./utils/utils_lxly');
+
+const execute = async () => {
+    // instantiate a lxlyclient
+    const client = await getLxLyClient();
+    // get an api instance of ether token on sepolia testnet
+    const token = client.erc20(tokens[0].ether, 0);
+		// call the `bridgeAsset` api.
+    const result = await token.bridgeAsset("2000000000000000000", to, 1);
+  	// getting the transactionhash if rpc request is sent
+    const txHash = await result.getTransactionHash();
+    console.log("txHash", txHash);
+  	// getting the transaction receipt.
+    const receipt = await result.getReceipt();
+    console.log("receipt", receipt);
+}
+
+execute().then(() => {
+}).catch(err => {
+    console.error("err", err);
+}).finally(_ => {
+    process.exit(0);
+});
 
 ```
 
+![Bridge Asset - from](/Users/jinwooseong/Developer/ProjectsCompany/Polygon/Agglayer/UnifiedBridge_BridgeAndCall/pics/BridgeAsset_from.png)
+
+3. Claim Assets after GlobalExitRootManager is synced from source to destination. Because Cardona currently has a autoclaiming bot running, you don't need to do claim asset call. But in case you want to know how to do it, here's the code at `scripts/src/claim_asset.js`:
+
+```javascript
+const { getLxLyClient, tokens, configuration, from } = require('./utils/utils_lxly');
+
+const execute = async () => {
+  	// the source chain txn hash of `bridgeAsset` call.
+    const bridgeTransactionHash = "0xa0c21ccb392f56a9768a1e6741b04fbd9353acb26f3c0fc04f9d24d7977f9351";
+		
+    // instantiate a lxlyclient
+  	const client = await getLxLyClient();
+    // get an api instance of ether token on cardona testnet
+    const token = client.erc20(tokens[1].ether, 1);
+
+	  // call the `claimAsset` api.
+    const result = await token.claimAsset(bridgeTransactionHash, 0, {returnTransaction: false});
+    console.log("result", result);
+    const txHash = await result.getTransactionHash();
+    console.log("txHash", txHash);
+    const receipt = await result.getReceipt();
+    console.log("receipt", receipt);
+
+}
+
+execute().then(() => {
+}).catch(err => {
+    console.error("err", err);
+}).finally(_ => {
+    process.exit(0);
+});
+```
+
+4. After about 20 mins, your balance of `ETH` on destination chain should have increased to the transfered amount! You can check using the `balance.js` script, but remember to change the network id!
 
 ## L2 -> L1 using `BridgeMessage` interface in `Lxly.js`: 
 
@@ -534,14 +612,131 @@ You can test out the process via:
 
 We will be using `lxly.js` to initiate the `bridgeMessage` call and `claimMessage` call.
 
+1. Deploy a `onMessageReceived` function implemented smart contract `counter.sol` on destination network, in this example, it will be on Sepolia.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.16;
+
+contract counter {
+    uint256 public count;
+
+    constructor() {
+        count = 0;
+    }
+
+    function increment(uint256 amount) public {
+        count = count + amount;
+    }
+
+    // Function to handle the received message
+    // this is the interface that `claimMessage` will be able to access with.
+    function onMessageReceived(
+        address originAddress, 
+        uint32 originNetwork, 
+        bytes calldata metadata
+    ) external payable {
+        uint256 amount = abi.decode(metadata, (uint256));
+        require(amount > 0, "Has to increment at least 1");
+        require(amount < 5, "Has to increment less than 5");
+        // its also better to check if the msg.sender is the bridge address
+        // for this demo we will assume it always will be
+
+        increment(amount);
+    }
+}
+```
+
+2. Bridge Message from cardona to sepolia: `node scripts/src/bridge_message.js`
+
 ```javascript
+const { getLxLyClient, tokens, configuration, from, to } = require('./utils/utils_lxly');
+const { Bridge } = require('@maticnetwork/lxlyjs');
+
+// Encode the amount into a uint256.
+function encodeMetadata(amount) {
+    return encodePacked(["uint256"], [amount]);
+}
+
+const execute = async () => {
+    const client = await getLxLyClient();
+    
+    // change this with your smart contract deployed on destination network.
+    const bridgeAddress = "0x0"; 
+
+    // the destination Network ID for this example is spolia, therefore is 0.
+    const destinationNetworkId = 0; 
+
+    // Call bridgeMessage function.
+    const result = await client.bridges[destinationNetworkId]
+    		.bridgeMessage(destinationNetworkId, bridgeAddress, true, encodeMetadata(2));
+    const txHash = await result.getTransactionHash();
+    console.log("txHash", txHash);
+    const receipt = await result.getReceipt();
+    console.log("receipt", receipt);
+}
+
+execute().then(() => {
+}).catch(err => {
+    console.error("err", err);
+}).finally(_ => {
+    process.exit(0);
+});
 
 ```
 
-You can test out the process via:
+3. Claim Message after GlobalExitRootManager is synced on L1.  `scripts/src/claim_message.js`:
 
-```bash
+```javascript
+const { getLxLyClient, tokens, configuration, from, to } = require('./utils/utils_lxly');
+const { Bridge } = require('@maticnetwork/lxlyjs');
 
+const execute = async () => {
+    const client = await getLxLyClient();
+    
+    // bridge txn hash from the source chain.
+    const bridgeTransactionHash = ""; 
+
+    // Network should be set as 1 since its from cardona.
+    const sourceNetworkId = 1;
+
+    // Network should be set as 0 since its to sepolia
+    const destinationNetworkId = 0;
+
+    // API for building payload for claim
+    const result = 
+        await client.bridgeUtil.buildPayloadForClaim(bridgeTransactionHash, sourceNetworkId)
+        // payload is then passed to `claimMessage` API
+        .then((payload) => {
+            console.log("payload", payload);
+            return client.bridges[destinationNetworkId].claimMessage(
+                payload.smtProof,
+                payload.smtProofRollup,
+                payload.globalIndex,
+                payload.mainnetExitRoot,
+                payload.rollupExitRoot,
+                payload.originNetwork,
+                payload.originTokenAddress,
+                payload.destinationNetwork,
+                payload.destinationAddress,
+                payload.amount,
+                payload.metadata,
+                option
+            );
+        });
+
+    const txHash = await result.getTransactionHash();
+    console.log("txHash", txHash);
+    const receipt = await result.getReceipt();
+    console.log("receipt", receipt);
+}
+
+execute().then(() => {
+}).catch(err => {
+    console.error("err", err);
+}).finally(_ => {
+    process.exit(0);
+});
 ```
 
 
@@ -557,17 +752,75 @@ You can test out the process via:
 
 ### Code Walkthrough
 
-We will be using `lxly.js` to initiate the `bridgeMessage` call and `claimMessage` call.
+We will be using `lxly.js` and `viem` to initiate the `bridgeAndCall` call and `claimMessage` call. We will do Bridge-and-Call from Cardona(lx) to Zkyoto(ly). `bridgeAndCall` is not supported by lxly.js yet so we have to do it manually.
+
+1. Deploy the same `counter.sol` contract on `zkyoto` testnet.
+2. Call `bridgeAndCall` from cardona to zkyoto: `node scripts/src/bridge_and_call.js`
 
 ```javascript
+import { encodeFunctionData } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import BridgeExtension from "../../ABIs/BridgeExtension";
+import Counter from "../../ABIs/Counter";
+import publicClients from "./utils/viem_clients";
 
+// Encode the amount into a uint256.
+function encodeMetadata(amount) {
+    return encodePacked(["uint256"], [amount]);
+}
+
+const execute = async () =>{
+    const BRIDGE_EXTENSION_ADDRESS = "0x2311BFA86Ae27FC10E1ad3f805A2F9d22Fc8a6a1";
+
+    const account = privateKeyToAccount(`0x${process.env.USER1_PRIVATE_KEY}`);
+
+    // because we are bridging from cardona.
+    const sourceNetwork = 1; 
+
+    // set the lx token as `eth`.
+    const lxToken = "0x0000000000000000000000000000000000000000";
+    const amount = "0"; // not bridging any token this time
+    const destinationNetwork = 2; // sending to zkyoto
+    const callAddress = "0x..."; // change it to the counter smart contract deployed on zkyoto.
+    const fallbackAddress = account.address; // if transaction fails, then the funds will be sent back to user's address on destination network.
+    // prepare the call data for the counter smart contract on destination chain.
+    const callData = encodeFunctionData({
+        abi: Counter,
+        functionName: 'increment',
+        args: ['0x3']
+    });
+    const forceUpdateGlobalExitRoot = true;
+
+    const { request } = await publicClients[sourceNetwork].simulateContract({
+        address: BRIDGE_EXTENSION_ADDRESS,
+        abi: BridgeExtension,
+        functionName: "bridgeAndCall",
+        args: [
+            lxToken,
+            amount,
+            destinationNetwork,
+            callAddress,
+            fallbackAddress,
+            callData,
+            forceUpdateGlobalExitRoot
+        ],
+        account,
+        value: amount,
+    });
+
+    const result = await client.writeContract(request);
+    console.log("result", result);;
+}
+
+execute().then(() => {
+}).catch(err => {
+    console.error("err", err);
+}).finally(_ => {
+    process.exit(0);
+});
 ```
 
-You can test out the process via:
-
-```bash
-
-```
+3. Claim Message after GlobalExitRootManager is synced on zkyoto.  `scripts/src/claim_message.js`, Remember to update `bridgeTransactionHash`, and `destinationNetworkId` to `2`, since zkyoko's network id is 2.
 
 # Future TODO
 
@@ -584,7 +837,7 @@ You can test out the process via:
   - [ ] L2(custom gas token) -> L2(custom gas token) transfer source chain gas token
   - [ ] L2(custom gas token) -> L2(custom gas token) transfer destination chain gas token
 - [ ] Message Bridging
-  - [ ] Custom `onMessageReceived` contract example.
+  - [ ] A more complicated `onMessageReceived` custom contract example.
 - [ ] Bridge-and-Call Bridging
   - [ ] L1 -> L2 -> L1
   - [ ] Defi call example transaction
@@ -597,3 +850,4 @@ You can test out the process via:
 - https://github.com/agglayer/lxly-bridge-and-call
 - https://github.com/0xPolygon/lxly.js
 - https://github.com/agglayer/lxly-bridge-and-call-demos
+- https://github.com/0xrouss/agglayer-scripts

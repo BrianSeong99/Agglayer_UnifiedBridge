@@ -1,0 +1,66 @@
+# Example
+
+This folder contains different examples for different cases. All examples are nodejs scripts, so can be easily run by `node` command.
+
+## How to use
+
+### 1. Set configuration
+
+You need to configure your environment variables now. Copy `.env.example` and rename as `.env`. Now provide values for the keys mentioned there.
+
+There are some prefilled data in `config.js` but feel free to change anything as per your needs.
+
+
+**Note:** - Be careful with your private key, Use a key you are comfortable with for development purposes. And try not to make it public by doing actions such as committing to repo or referencing on any online site.
+
+### 2. Install package
+
+install related package by running command -
+
+```
+npm i
+```
+
+**Note:-** Make sure you are inside examples folder.
+
+### 3. Run script
+
+run any example script by using
+
+```
+node <file_path>
+```
+
+let's run a erc20 balance example
+
+```
+node lxly/erc20/balance.js
+```
+
+## Run example using source code
+
+This section helps you to run the example code with current source code. Generally it is needed for debugging purpose.
+
+### 1. Build & link source code
+
+Run the below command inside root of this project.
+
+```
+npm run build:link
+```
+
+You might get permission issue, in this case run the command using `sudo`.
+
+### 2. Link the library
+
+#### 2.1 Move into examples folder
+
+```
+cd examples
+```
+
+#### 2.2 run link command
+
+```
+npm run link:lib
+```

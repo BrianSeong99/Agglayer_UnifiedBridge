@@ -1,0 +1,19 @@
+{
+  "name": "examples",
+  "version": "0.0.1",
+  "description": "## How to use",
+  "main": "config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "link:lib": "npm link @maticnetwork/lxlyjs"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@maticnetwork/lxlyjs": "2.1.1",
+    "@maticnetwork/maticjs-web3": "^1.0.4",
+    "@truffle/hdwallet-provider": "^1.7.0",
+    "dotenv": "^10.0.0",
+    "viem": "^2.17.3"
+  }
+}
