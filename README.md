@@ -492,6 +492,8 @@ The assets transferred from source chain via `bridgeAsset` should have already t
 
 # Using it as a Developer
 
+> For more `lxly.js` examples, please refer to the [examples](https://github.com/0xPolygon/lxly.js/tree/main/examples/lxly) folder.
+
 ## L1 -> L2 using `BridgeAsset` interface in `Lxly.js`:
 
 ### Flow for L1 -> L2 Bridging Transactions
