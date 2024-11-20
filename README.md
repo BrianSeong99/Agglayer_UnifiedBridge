@@ -115,7 +115,7 @@ Once the RollupManager has updated its `rollupExitRoot`, it will then update the
 
 ### Global Exit Root, L1 Info Tree, Global Index:
 
-`globalExitRoot` is the basically the hash of `rollupExitRoot` and `mainnetExitRoot`. Whenever there's new RER or MER submitted to [`PolygonZkEVMGlobalExitRootV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMGlobalExitRootV2.sol), it will append the new GER to the L1 Info Tree.
+`globalExitRoot` is the basically the hash of `rollupExitRoot` and `mainnetExitRoot`. Whenever there's new RER or MER submitted to [`PolygonZkEVMGlobalExitRootV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMGlobalExitRootV2.sol), it will append the new GER to the L1 Info Tree. L2 syncs L1's latest GER by calling `updateExitRoot` function in [`PolygonZkEVMGlobalExitRootL2.sol`] on L2.
 
 `L1InfoTree` is the Sparse Merkle Tree that maintains the GERs. It is a binary tree and has the height of 32. The root is updated every time a new GER is submitted.
 
@@ -142,18 +142,41 @@ Consists of important [contracts](https://github.com/0xPolygonHermez/zkevm-contr
 - and others.
 
 ### Bridge Service
+
 - **[Chain Indexer Framework](https://docs.polygon.technology/tools/chain-indexer-framework/overview/#2-why-do-dapps-need-a-blockchain-data-indexer)**: An EVM blockchain data indexer. It parses, sort, and organizes blockchain data for the Bridge Service API. Each chain connected to AggLayer will have its own indexer instance.
 
 - **Transaction API**: All details of a bridge transaction initiated by or incoming to a user’s walletAddress. Details include the real time status, the token bridged, the amount, the source and destination chain etc. Used for the user interface to display the status of the transaction. 
 
-    API endpoint is `https://bridge-api-testnet-dev.polygon.technology/transactions?userAddress={userAddress}`.
+    - API endpoints are: 
+    
+        - Testnet: `https://api-gateway.polygon.technology/api/v3/transactions/testnet?userAddress={userAddress}`
+        
+        - Mainnet: `https://api-gateway.polygon.technology/api/v3/transactions/mainnet?userAddress={userAddress}`
+
     - `userAddress` should be the address that is associated with the cross-chain transaction.
+
+    - Attach API Key in the header! (Check below example to learn more)
+
+    - An example Transaction API can be seen as follows:
+      ```bash
+      curl --location 'https://api-gateway.polygon.technology/api/v3/transactions/mainnet?userAddress={userAddress}' \
+      --header 'x-api-key: <your-api-key-here>'
+      ```
+      > API Key: **Transaction API** & **Proof Generation API** requires API Key to access. Please Check this [guide](https://polygontechnology.notion.site/api-gateway-service-documentation) on how to generate one.
+
 
 - **Proof Generation API**: The merkle proof payload needed to process claims on the destination chain. 
 
-    API endpoint is `https://bridge-api-testnet-dev.polygon.technology/merkle-proof?networkId={networkId}&depositCount={Number}`
+    - API endpoint are:
+    
+        - Testnet: `https://api-gateway.polygon.technology/api/v3/proof/testnet/merkle-proof?networkId={sourceNetworkId}&depositCount={depositCount}`
+        - Mainnet: `https://api-gateway.polygon.technology/api/v3/proof/mainnet/merkle-proof?networkId={sourceNetworkId}&depositCount={depositCount}`
+    
     - `networkId` is the network ID registered on AggLayer, `0` for Ethereum/Sepolia, and `1` for Polygon zkEVM/Cardona, and more.
+    
     - `depositCount` is the leaf index of the Local Exit Tree from the source chain(Explained in the next section). You can get the depositCount by checking the `bridgeAsset`/`bridgeMessage` event logs or use the Transaction API above to get the depositCount.
+
+    - Remember to attach API Key in header!
 
 ### Tools
 
