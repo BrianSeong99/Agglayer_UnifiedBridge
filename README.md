@@ -586,8 +586,6 @@ execute().then(() => {
 
 ```
 
-![Bridge Asset - from](/Users/jinwooseong/Developer/ProjectsCompany/Polygon/Agglayer/UnifiedBridge_BridgeAndCall/pics/BridgeAsset_from.png)
-
 3. Claim Assets after GlobalExitRootManager is synced from source to destination. Because Cardona currently has a autoclaiming bot running, you don't need to do claim asset call. But in case you want to know how to do it, here's the code at `scripts/src/claim_asset.js`:
 
 ```javascript
