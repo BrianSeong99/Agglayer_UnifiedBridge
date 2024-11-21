@@ -1,4 +1,4 @@
-export default [
+const Counter = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -54,3 +54,7 @@ export default [
 		"type": "function"
 	}
 ]
+
+module.exports = {
+	Counter
+}

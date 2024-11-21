@@ -1,15 +1,24 @@
 const { getLxLyClient, tokens, configuration, from } = require('./utils/utils_lxly');
 
 const execute = async () => {
-    const bridgeTransactionHash = "0xa0c21ccb392f56a9768a1e6741b04fbd9353acb26f3c0fc04f9d24d7977f9351";
-    const client = await getLxLyClient();
-
-    const token = client.erc20(tokens[1].ether, 1);
-
-    const result = await token.claimAsset(bridgeTransactionHash, 0, {returnTransaction: false});
+  	// the source chain txn hash of `bridgeAsset` call.
+    const bridgeTransactionHash = "0x1fc6858b20c75189a9fa8f3ae60c2a255cc3c41a058781f33daa57fc0f80b81a";
+		
+    // instantiate a lxlyclient
+  	const client = await getLxLyClient();
+    // the source networkId
+    const sourcenNetworkId = 0;
+    // the destination networkId
+    const destinationNetworkId = 1;
+    // get an api instance of ether token on cardona testnet
+    const token = client.erc20(tokens[destinationNetworkId].ether, destinationNetworkId);
+    // call the `claimAsset` api.
+    const result = await token.claimAsset(bridgeTransactionHash, sourcenNetworkId, {returnTransaction: true});
     console.log("result", result);
+  	// getting the transactionhash if rpc request is sent
     const txHash = await result.getTransactionHash();
     console.log("txHash", txHash);
+  	// getting the transaction receipt.
     const receipt = await result.getReceipt();
     console.log("receipt", receipt);
 

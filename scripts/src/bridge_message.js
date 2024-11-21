@@ -1,5 +1,6 @@
 const { getLxLyClient, tokens, configuration, from, to } = require('./utils/utils_lxly');
 const { Bridge } = require('@maticnetwork/lxlyjs');
+const { encodePacked } = require('viem');
 
 // Encode the amount into a uint256.
 function encodeMetadata(amount) {
@@ -8,16 +9,15 @@ function encodeMetadata(amount) {
 
 const execute = async () => {
     const client = await getLxLyClient();
-    
     // change this with your smart contract deployed on destination network.
-    const bridgeAddress = "0x0"; 
-
+    const destinationAddress = "0x43854F7B2a37fA13182BBEA76E50FC8e3D298CF1"; 
     // the destination Network ID for this example is spolia, therefore is 0.
-    const destinationNetworkId = 0; 
-
+    const sourceNetworkId = 1;
     // Call bridgeMessage function.
-    const result = await client.bridges[destinationNetworkId]
-        .bridgeMessage(destinationNetworkId, bridgeAddress, true, encodeMetadata(2));
+    const destinationNetworkId = 0; 
+    // the source Network ID for this example is Cardona, therefore is 1.
+    const result = await client.bridges[sourceNetworkId]
+        .bridgeMessage(destinationNetworkId, destinationAddress, true, encodeMetadata(3));
     const txHash = await result.getTransactionHash();
     console.log("txHash", txHash);
     const receipt = await result.getReceipt();

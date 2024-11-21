@@ -14,6 +14,6 @@
     "@maticnetwork/maticjs-web3": "^1.0.4",
     "@truffle/hdwallet-provider": "^1.7.0",
     "dotenv": "^10.0.0",
-    "viem": "^2.17.3"
+    "ethers": "^6.13.4"
   }
 }

@@ -3,16 +3,12 @@ const { Bridge } = require('@maticnetwork/lxlyjs');
 
 const execute = async () => {
     const client = await getLxLyClient();
-    
     // bridge txn hash from the source chain.
-    const bridgeTransactionHash = ""; 
-
+    const bridgeTransactionHash = "0xfe25c1d884a7044ba18f6cee886a09a8e94f9ae12c08fd5d94cdc6f430376bf2"; 
     // Network should be set as 1 since its from cardona.
     const sourceNetworkId = 1;
-
     // Network should be set as 0 since its to sepolia
     const destinationNetworkId = 0;
-
     // API for building payload for claim
     const result = 
         await client.bridgeUtil.buildPayloadForClaim(bridgeTransactionHash, sourceNetworkId)
@@ -22,7 +18,7 @@ const execute = async () => {
             return client.bridges[destinationNetworkId].claimMessage(
                 payload.smtProof,
                 payload.smtProofRollup,
-                payload.globalIndex,
+                BigInt(payload.globalIndex),
                 payload.mainnetExitRoot,
                 payload.rollupExitRoot,
                 payload.originNetwork,
@@ -30,8 +26,7 @@ const execute = async () => {
                 payload.destinationNetwork,
                 payload.destinationAddress,
                 payload.amount,
-                payload.metadata,
-                option
+                payload.metadata
             );
         });
 

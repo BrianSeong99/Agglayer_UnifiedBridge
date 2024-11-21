@@ -277,7 +277,7 @@ function claimAsset(
 
 Before we initiate the `claimAsset` function, we have to prepare all these inputs:
 
-- Both `smtProofLocalExitRoot` and `smtProofRollupExitRoot` can be fetched via the **Proof Generation API**
+- Both `smtProofLocalExitRoot` and `smtProofRollupExitRoot` can be fetched via the **Proof Generation API**, the `depositCount` param for the Proof API is located at the fetch result of **Transaction API**, is your bridge transaction's `counter` field in the response.
 - `GlobalIndex` can be constructed as described in **Global Exit Root, L1 Info Tree, Global Index**
 - The rest can be found via **Transaction API**.
 
@@ -541,9 +541,11 @@ const { getLxLyClient, tokens, configuration, from } = require('./utils/utils_lx
 const execute = async () => {
   // instantiate a lxlyclient
   const client = await getLxLyClient();
+  // Sepolia NetworkId is 0, Cardona NetworkId is 1
+  const networkId = 0;
   // get an api instance of ether token on sepolia testnet
-  const erc20Token = client.erc20(tokens[0].ether, 0);
-	// check balance
+  const erc20Token = client.erc20(tokens[networkId].ether, networkId);
+  // check balance
   const result = await erc20Token.getBalance(from);
   console.log("result", result);
 }
@@ -554,7 +556,6 @@ execute().then(() => {
 }).finally(_ => {
   process.exit(0);
 });
-
 ```
 
 2. Bridge Eth from sepolia to Cardona: `node scripts/src/bridge_asset.js`
@@ -565,10 +566,14 @@ const { getLxLyClient, tokens, configuration, from, to } = require('./utils/util
 const execute = async () => {
     // instantiate a lxlyclient
     const client = await getLxLyClient();
+    // source NetworkId is 0, since its Sepolia
+    const sourceNetworkId = 0;
     // get an api instance of ether token on sepolia testnet
-    const token = client.erc20(tokens[0].ether, 0);
-		// call the `bridgeAsset` api.
-    const result = await token.bridgeAsset("2000000000000000000", to, 1);
+    const token = client.erc20(tokens[sourceNetworkId].ether, sourceNetworkId);
+    // Set Destination Network as Cardona
+    const destinationNetworkId = 1;
+    // call the `bridgeAsset` api. Bridging 1 eth
+    const result = await token.bridgeAsset("1000000000000000000", to, destinationNetworkId);
   	// getting the transactionhash if rpc request is sent
     const txHash = await result.getTransactionHash();
     console.log("txHash", txHash);
@@ -583,28 +588,32 @@ execute().then(() => {
 }).finally(_ => {
     process.exit(0);
 });
-
 ```
 
-3. Claim Assets after GlobalExitRootManager is synced from source to destination. Because Cardona currently has a autoclaiming bot running, you don't need to do claim asset call. But in case you want to know how to do it, here's the code at `scripts/src/claim_asset.js`:
+3. Claim Assets after GlobalExitRootManager is synced from source to destination. Since Cardona currently has a autoclaiming bot running, you don't need to do claim asset call. But in case you want to know how to do it, here's the code at `scripts/src/claim_asset.js`:
 
 ```javascript
 const { getLxLyClient, tokens, configuration, from } = require('./utils/utils_lxly');
 
 const execute = async () => {
   	// the source chain txn hash of `bridgeAsset` call.
-    const bridgeTransactionHash = "0xa0c21ccb392f56a9768a1e6741b04fbd9353acb26f3c0fc04f9d24d7977f9351";
+    const bridgeTransactionHash = "";
 		
     // instantiate a lxlyclient
   	const client = await getLxLyClient();
+    // the source networkId
+    const sourcenNetworkId = 0;
+    // the destination networkId
+    const destinationNetworkId = 1;
     // get an api instance of ether token on cardona testnet
-    const token = client.erc20(tokens[1].ether, 1);
-
+    const token = client.erc20(tokens[destinationNetworkId].ether, destinationNetworkId);
 	  // call the `claimAsset` api.
-    const result = await token.claimAsset(bridgeTransactionHash, 0, {returnTransaction: false});
+    const result = await token.claimAsset(bridgeTransactionHash, sourcenNetworkId, {returnTransaction: true});
     console.log("result", result);
+  	// getting the transactionhash if rpc request is sent
     const txHash = await result.getTransactionHash();
     console.log("txHash", txHash);
+  	// getting the transaction receipt.
     const receipt = await result.getReceipt();
     console.log("receipt", receipt);
 
@@ -675,6 +684,7 @@ contract counter {
 ```javascript
 const { getLxLyClient, tokens, configuration, from, to } = require('./utils/utils_lxly');
 const { Bridge } = require('@maticnetwork/lxlyjs');
+const { encodePacked } = require('viem');
 
 // Encode the amount into a uint256.
 function encodeMetadata(amount) {
@@ -683,16 +693,15 @@ function encodeMetadata(amount) {
 
 const execute = async () => {
     const client = await getLxLyClient();
-    
     // change this with your smart contract deployed on destination network.
-    const bridgeAddress = "0x0"; 
-
+    const destinationAddress = "0x43854F7B2a37fA13182BBEA76E50FC8e3D298CF1"; 
     // the destination Network ID for this example is spolia, therefore is 0.
-    const destinationNetworkId = 0; 
-
+    const sourceNetworkId = 1;
     // Call bridgeMessage function.
-    const result = await client.bridges[destinationNetworkId]
-    		.bridgeMessage(destinationNetworkId, bridgeAddress, true, encodeMetadata(2));
+    const destinationNetworkId = 0; 
+    // the source Network ID for this example is Cardona, therefore is 1.
+    const result = await client.bridges[sourceNetworkId]
+        .bridgeMessage(destinationNetworkId, destinationAddress, true, encodeMetadata(3));
     const txHash = await result.getTransactionHash();
     console.log("txHash", txHash);
     const receipt = await result.getReceipt();
@@ -716,16 +725,12 @@ const { Bridge } = require('@maticnetwork/lxlyjs');
 
 const execute = async () => {
     const client = await getLxLyClient();
-    
     // bridge txn hash from the source chain.
-    const bridgeTransactionHash = ""; 
-
+    const bridgeTransactionHash = "0xfe25c1d884a7044ba18f6cee886a09a8e94f9ae12c08fd5d94cdc6f430376bf2"; 
     // Network should be set as 1 since its from cardona.
     const sourceNetworkId = 1;
-
     // Network should be set as 0 since its to sepolia
     const destinationNetworkId = 0;
-
     // API for building payload for claim
     const result = 
         await client.bridgeUtil.buildPayloadForClaim(bridgeTransactionHash, sourceNetworkId)
@@ -735,7 +740,7 @@ const execute = async () => {
             return client.bridges[destinationNetworkId].claimMessage(
                 payload.smtProof,
                 payload.smtProofRollup,
-                payload.globalIndex,
+                BigInt(payload.globalIndex),
                 payload.mainnetExitRoot,
                 payload.rollupExitRoot,
                 payload.originNetwork,
@@ -743,8 +748,7 @@ const execute = async () => {
                 payload.destinationNetwork,
                 payload.destinationAddress,
                 payload.amount,
-                payload.metadata,
-                option
+                payload.metadata
             );
         });
 
