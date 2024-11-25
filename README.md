@@ -39,6 +39,7 @@ This repo explains the design and usage of Unified Bridge and Bridge-and-Call.
   - [6. Bridging Interface in Bridge-and-Call](#6-bridging-interface-in-bridge-and-call)
     - [BridgeExtention.sol](#bridgeextentionsol)
     - [JumpPoint.sol](#jumppointsol)
+  - [7. Security of Unified Bridge](#7-security-of-unified-bridge)
 - [Using it as a Developer](#using-it-as-a-developer)
   - [L1 -\> L2 using `BridgeAsset` interface in `Lxly.js`:](#l1---l2-using-bridgeasset-interface-in-lxlyjs)
     - [Flow for L1 -\> L2 Bridging Transactions](#flow-for-l1---l2-bridging-transactions)
@@ -512,6 +513,32 @@ The assets transferred from source chain via `bridgeAsset` should have already t
 1. Once instantiated, first thing is to check the asset that was transferred to `this`, whether is a `ETH` token, `WETH` token, Custom Gas Token, or ERC-20 token.
 2. Depending on the token type, transfer the token accordingly to the final `callAddress`, and then do the smart contract call with `callData`
 3. If the execution fails on the `callAddress` contract, tokens are transferred to `fallbackAddress`.
+
+## 7. Security of Unified Bridge
+- **Secured by Ethereum**: Settlement on Ethereum
+  
+  All cross-chain transactions are settled on Ethereum before they can be claimed on the destination chain. This ensures that asset transfers originating from the source chain are valid and secure.
+
+- **Secured by Mathematics**: Merkle Proof Validation
+  
+  Once the source chain bridging transaction is finalized on Ethereum, the destination chain verifies the proof to confirm that the assets transferred from the source chain are indeed settled on Ethereum.
+
+- **Secured by Design**: Immutable Data Packaging 
+
+  During an asset transfer from the source chain, the transaction requires the caller to specify the destination chain, the destination address, and the amount of assets to be transferred. These details are bundled together in an immutable cross-chain transaction.
+
+  When claiming the assets on the destination chain, the smart contract verifies the correct destination network and processes the claim using the pre-defined destination address and asset amount. This design ensures:
+  - Assets cannot be claimed on an incorrect network.
+  - Assets cannot be claimed to an incorrect address.
+  - Assets cannot be claimed in excess of the transferred amount.
+
+  The claim process is open to anyone, as the outcome is predetermined regardless of who initiates the claim. Claimers simply pay the gas fee to facilitate the completion of the cross-chain transaction.
+
+- **Secured by Access Control**: No Administrative Privileges
+  
+  The bridge contract can only mint, burn, or transfer assets through user-initiated bridge transactions. There is no administrative control over assets locked in the bridge contract. Only users with a balance of the specific tokens have access to their respective assets.
+
+To learn more about the actions for different types of tokens(gas token, Eth token, ERC-20 Token, etc), please check out the above [specs](#assets-bridging)
 
 # Using it as a Developer
 
