@@ -58,21 +58,21 @@ This repo explains the design and usage of Unified Bridge and Bridge-and-Call.
 ## 0. Background
 
 ### L2s and Fragmentation 
-As more L2 solutions emerge, a key challenge is ecosystem fragmentation. Fragmentation occurs when various L2s operate in silos, each with its own transaction processing, user base, and protocols. This creates several issues:
+As more L2 chains emerge, a key challenge is ecosystem fragmentation. Fragmentation occurs when various L2s operate in silos, each with its own transaction processing, user base, and protocols. This creates several issues:
 
-1. **Liquidity Fragmentation**: Liquidity is spread across multiple L2s, making it challenging to access a unified pool of assets for trading or lending. Users on one L2 cannot easily interact with assets on another, which reduces overall liquidity effectiveness.
+1. **Liquidity Fragmentation**: Liquidity is spread across multiple L2s, making it challenging to access a unified pool of assets when transacting. Users on one L2 cannot easily interact with assets on another, which reduces overall liquidity effectiveness.
 2. **User Experience (UX) Issues**: Users must bridge assets across multiple L2s and adapt to different wallets, transaction formats, and fee structures, leading to a fragmented user experience. This can discourage adoption and reduce ease of access.
-3. **Developer Complexity**: Developers must often build custom solutions for each L2, which increases development costs and creates inconsistent experiences across L2s. Standardization is difficult, and ensuring cross-L2 compatibility can be resource-intensive.
+3. **Developer Complexity**: Developers must often build custom infrastructure for each L2, which increases development costs and creates inconsistent experiences across L2s. Standardization is difficult, and ensuring cross-L2 compatibility can be resource-intensive.
 4. **Security Risks**: Fragmented systems increase potential attack vectors, as users rely on multiple bridges, sequencers, and contracts. Any vulnerability in one L2 can potentially affect assets and users across the ecosystem.
 5. **Coordination Challenges**: Governance and decision-making across different L2s can be disjointed, making it hard to create a unified approach to updates, standards, or improvements. This could hinder the collective growth of the ecosystem.
 
 ### What is AggLayer
 
-The AggLayer serves as an interoperability layer for cross-chain interactions among the chains connected to it. The AggLayer provides trustless messaging and liquidity sharing across connected chains, making it a more specialized solution than general-purpose protocols like Wormhole, Axelar, or LayerZero. However, it is not just a bridge; it's designed to handle native asset transfers and cross-chain execution, providing high security and low latency for connected chains. 
+The AggLayer serves as an interoperability layer for cross-chain interactions among the chains connected to it. The AggLayer provides trustless messaging and liquidity sharing across connected chains, making it a more specialized protocol that focuses on asset than general-purpose protocols. However, it is not just a bridge; it's designed to handle native asset transfers and cross-chain execution, providing high security and low latency for connected chains. 
 
 ## 1. Introduction to Unified Bridge
 
-The Unified Bridge (Prev. LxLy bridge) is an interoperability solution aimed at enabling cross-chain communication among AggLayer connected Networks. It enables the interaction between different networks such as L2 to L2, L1 to L2, and L2 to L1.
+The Unified Bridge (Prev. LxLy bridge) is an interoperability layer aimed at enabling cross-chain communication among AggLayer connected chains. It enables the interaction between different networks such as L2 to L2, L1 to L2, and L2 to L1.
 
 ### Why do we need Unified Bridge
 
@@ -85,11 +85,11 @@ For **AggLayer**, it is a critical component to facilitate unified experience am
 The entire data structure of Unified Bridge Looks like this, we will explain each part in detail.
 ![Unified Bridge Data Structure](./pics/UnifiedBridgeTree.png)
 
-AggLayer is maintaining a giant merkle tree like this to record all the cross-chain transactions, verify the validity of all cross-chain transactions, making sure source chain transaction is 
+AggLayer is maintaining a giant merkle tree like this to record all the cross-chain transactions, verify the validity of all cross-chain transactions, making sure source chain transaction is indeed finalized on L1 before claiming on the destination chain.
 
 ### Local Exit Root & Local Index
 
-All cross-chain transactions using the Unified Bridge are recorded in a Sparse Merkle Tree called Local Exit Tree. Each AggLayer connected chains maintains its own local exit tree. This is maintained in [`PolygonZKEVMBridgeV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMBridgeV2.sol) on each AggLayer connected L2 and L1.
+All cross-chain transactions using the Unified Bridge are recorded in a Sparse Merkle Tree called Local Exit Tree. Each AggLayer connected chain maintains its own local exit tree. This is maintained in [`PolygonZKEVMBridgeV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMBridgeV2.sol) on each AggLayer connected L2 and L1.
 
 - `Local Exit Root(LET)`: The root of the tree is called the local exit root. It is a binary tree and has the height of 32. The root is updated every time a new cross-chain transaction is initiated.
 
@@ -99,23 +99,23 @@ All cross-chain transactions using the Unified Bridge are recorded in a Sparse M
 
 ### Rollup Exit Root
 
-`rollupExitRoot` is the merkle root of all L2s' Local Exit Root. All AggLayer connected L2s constantly updates its Local Exit Root in [`PolygonRollupManager.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonRollupManager.sol), which updates the Rollup Exit Sparse Merkle Tree's Root.
+`rollupExitRoot` is the merkle root of all L2s' Local Exit Root. All AggLayer connected L2s constantly update their Local Exit Root in [`PolygonRollupManager.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonRollupManager.sol), which updates the Rollup Exit Sparse Merkle Tree.
 
-When there's new cross-chain transactions initiated on Source Chain, it is chain's responsibility to submit its LET to the `RollupManager` smart contract on L1. The frequency is up to the L2, whether they submit the new LET for every new cross-chain transaction immediately, or maybe accumulate a certain number of cross-chain transactions then submit the LET with numbers of cross-chain transactions included.
+When there's new cross-chain transactions initiated on the Source Chain, is the chain's responsibility to submit its LET to the `RollupManager` smart contract on L1. The frequency is up to the L2, whether they submit the new LET for every new cross-chain transaction immediately, or maybe accumulate a certain number of cross-chain transactions before submitting the LET with the number of cross-chain transactions included.
 
-Once the RollupManager has updated its `rollupExitRoot`, it will then update the `rollupExitRoot` on it will then update the `mainnetExitRoot` on [`PolygonZkEVMGlobalExitRootV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMGlobalExitRootV2.sol) on L1.
+Once the RollupManager has updated a `localExitRoot` of an L2, it will then update the `rollupExitRoot` on it, which will then update the `globalExitRoot` on [`PolygonZkEVMGlobalExitRootV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMGlobalExitRootV2.sol) on L1.
 
 ![RER](./pics/RET.png)
 
 ### Mainnet Exit Root
 
-`mainnetExitRoot` is the same thing as Local Exit Root, but it is maintained on L1, which tracks the Bridging activities of L1 to All AggLayer connected L2s. When Mainnet Exit Root is updated on `PolygonZKEVMBridgeV2.sol` contract on L1, it will then update the `mainnetExitRoot` on [`PolygonZkEVMGlobalExitRootV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMGlobalExitRootV2.sol) on L1.
+`mainnetExitRoot` is the same thing as Local Exit Root, but it is maintained on L1, which tracks the Bridging activities of L1 to all AggLayer connected L2s. When Mainnet Exit Root is updated on `PolygonZKEVMBridgeV2.sol` contract on L1, it will then update the `mainnetExitRoot` on [`PolygonZkEVMGlobalExitRootV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMGlobalExitRootV2.sol) on L1.
 
 ![L1MET](./pics/L1MET.png)
 
 ### Global Exit Root, L1 Info Tree, Global Index:
 
-`globalExitRoot` is the basically the hash of `rollupExitRoot` and `mainnetExitRoot`. Whenever there's new RER or MER submitted to [`PolygonZkEVMGlobalExitRootV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMGlobalExitRootV2.sol), it will append the new GER to the L1 Info Tree. L2 syncs L1's latest GER by calling `updateExitRoot` function in [`PolygonZkEVMGlobalExitRootL2.sol`] on L2.
+`globalExitRoot` is basically the hash of `rollupExitRoot` and `mainnetExitRoot`. Whenever there's new RER or MER submitted to [`PolygonZkEVMGlobalExitRootV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMGlobalExitRootV2.sol), it will append the new GER to the L1 Info Tree. L2 syncs L1's latest GER by calling `updateExitRoot` function in [`PolygonZkEVMGlobalExitRootL2.sol`] on L2.
 
 `L1InfoTree` is the Sparse Merkle Tree that maintains the GERs. It is a binary tree and has the height of 32. The root is updated every time a new GER is submitted.
 
@@ -133,17 +133,17 @@ There are two main components of Unified Bridge, the on-chain contracts, and the
 
 ### Unified Bridge Contracts
 
-The core of the service that acts as the interface for developers, users to initiate the cross-chain transactions, and facilitate contract calls on destination chain if specified. Deployed on both source and destination chains.
+The core of the service that acts as the interface for developers, users to initiate the cross-chain transactions, and facilitate contract calls on the destination chain if specified. It is deployed on both source and destination chains.
 
 Consists of important [contracts](https://github.com/0xPolygonHermez/zkevm-contracts/tree/main/contracts):
-- `PolygonZKEVMBridgeV2.sol`: Bridge contract on both L1 and L2, maintains its own LET. It is the access point for ll cross-chain transactions, including `bridgeAsset`, `bridgeMessage`, `claimAsset`, and `claimMessage`. 
-- `PolygonRollupManager.sol`: Rollup Manager contract on L1, all L2 contracts settles on L1 and updates their LET via Rollup Manager on L1. Then Rollup Manager updates the RET on L1.
+- `PolygonZKEVMBridgeV2.sol`: Bridge contract on both L1 and L2, maintains its own LET. It is the access point for all cross-chain transactions, including `bridgeAsset`, `bridgeMessage`, `claimAsset`, and `claimMessage`. 
+- `PolygonRollupManager.sol`: Rollup Manager contract on L1, all L2 contracts settle on L1 and update their LET via Rollup Manager on L1. Then Rollup Manager updates the RET on L1.
 - `PolygonZkEVMGlobalExitRootV2.sol`: Global Exit Root contract on L1 and L2, its root is updated every time when a new Rollup Exit Root or Mainnet Exit Root is updated.
 - and others.
 
 ### Bridge Service
 
-- **[Chain Indexer Framework](https://docs.polygon.technology/tools/chain-indexer-framework/overview/#2-why-do-dapps-need-a-blockchain-data-indexer)**: An EVM blockchain data indexer. It parses, sort, and organizes blockchain data for the Bridge Service API. Each chain connected to AggLayer will have its own indexer instance.
+- **[Chain Indexer Framework](https://docs.polygon.technology/tools/chain-indexer-framework/overview/#2-why-do-dapps-need-a-blockchain-data-indexer)**: An EVM blockchain data indexer. It parses, sorts, and organizes blockchain data for the Bridge Service API. Each chain connected to AggLayer will have its own indexer instance.
 
 - **Transaction API**: All details of a bridge transaction initiated by or incoming to a user’s walletAddress. Details include the real time status, the token bridged, the amount, the source and destination chain etc. Used for the user interface to display the status of the transaction. 
 
@@ -180,8 +180,8 @@ Consists of important [contracts](https://github.com/0xPolygonHermez/zkevm-contr
 
 ### Tools
 
-- **Claimer**: Anyone who wants to help finish the bridging process can become the claimer. Claim Service can be deployed by dapps, chains, or anyone. There's also [auto claiming script](https://github.com/0xPolygon/auto-claim-service) available, which automates the claim process on the destination chain.
-- **[Lxly.js](https://github.com/0xpolygon/lxly.js?tab=readme-ov-file)**: LxLy.js is javascript library which has all the prebuilt functions for interacting with the lxly bridge contracts. It does most of the heavy lifting, like type conversion, formatting, error handling etc. It makes it very easy for a developer to invoke the bridge, claim and many other functions required for bridging.
+- **Claimer**: Anyone who wants to help finish the bridging process can become the claimer. Claim Service can be deployed by dapps, chains, or anyone. There's also an [auto claiming script](https://github.com/0xPolygon/auto-claim-service) available, which automates the claim process on the destination chain.
+- **[Lxly.js](https://github.com/0xpolygon/lxly.js?tab=readme-ov-file)**: LxLy.js is a javascript library which has all the prebuilt functions for interacting with the lxly bridge contracts. It does most of the heavy lifting, like type conversion, formatting, error handling etc. It makes it very easy for a developer to invoke the bridge, claim and many other functions required for bridging.
 
 ![Unified Bridge](./pics/UnifiedBridgeDiagram.png)
 
@@ -275,7 +275,7 @@ function claimAsset(
 )
 ```
 
-Before we initiate the `claimAsset` function, we have to prepare all these inputs:
+Before the `claimAsset` function is initiated, all these inputs have to be prepared:
 
 - Both `smtProofLocalExitRoot` and `smtProofRollupExitRoot` can be fetched via the **Proof Generation API**, the `depositCount` param for the Proof API is located at the fetch result of **Transaction API**, is your bridge transaction's `counter` field in the response.
 - `GlobalIndex` can be constructed as described in **Global Exit Root, L1 Info Tree, Global Index**
@@ -410,7 +410,7 @@ The data preparation steps are the same as `claimAsset`, the code will go throug
 
 Bridge-and-Call is a feature in Unified Bridge that allows developers to initiate a cross-chain transaction call on the destination chain from the source chain.
 
-It is different from **Bridge Message**, where Bridge Message requires the destination address to be a smart contract that implemented the `IBridgeMessageREceiver.sol` interface. Where as for **Bridge-and-Call**, it itself is the contract that has implemented the interface, and it will be able to execute any functions on any smart contract in the destination network.
+It is different from **Bridge Message**, where Bridge Message requires the destination address to be a smart contract that implemented the `IBridgeMessageREceiver.sol` interface. Whereas for **Bridge-and-Call**, it itself is the contract that has implemented the interface, and it will be able to execute any functions on any smart contract in the destination network.
 
 ### Bridge-and-Call Components
 
@@ -524,7 +524,7 @@ The assets transferred from source chain via `bridgeAsset` should have already t
 1. User/Developer/Dapp initiate `bridgeAsset` call on L1
 2. Bridge contract on L1 appends an exit leaf to mainnet exit tree of the L1, and update its mainnet exit root.
 3. Global exit root manager appends the new L1 mainnet exit root to global exit tree and computes the new global exit root.
-4. L2 sequencer fetches and update the latest global exit root from the global exit root manager.
+4. L2 sequencer fetches and updates the latest global exit root from the global exit root manager.
 5. User/Developer/Dapp/Chain initiates `claimAsset` call, and also provides the smtProof.
 6. Bridge contract on destination L2 chain validates the smtProof against the global exit root on its chain. If passes next step.
 7. Transfer/Mint the asset to the destination address.
@@ -642,7 +642,7 @@ execute().then(() => {
 
 ### Code Walkthrough
 
-We will be using `lxly.js` to initiate the `bridgeMessage` call and `claimMessage` call.
+The `lxly.js` will be used to initiate the `bridgeMessage` call and `claimMessage` call.
 
 1. Deploy a `onMessageReceived` function implemented smart contract `counter.sol` on destination network, in this example, it will be on Sepolia.
 
@@ -721,7 +721,6 @@ execute().then(() => {
 
 ```javascript
 const { getLxLyClient, tokens, configuration, from, to } = require('./utils/utils_lxly');
-const { Bridge } = require('@maticnetwork/lxlyjs');
 
 const execute = async () => {
     const client = await getLxLyClient();
@@ -773,70 +772,75 @@ execute().then(() => {
 
 1. User/Developer/Dapp initiate `bridgeAndCall` call on L2 Source.
 2. Similar to L2 -> L1 process, global exit root on L1 is updated, which includes the source chain bridging transaction.
-3. Then destination L2 sequencer fetches and update the latest global exit root from the global exit root manager.
+3. Then destination L2 sequencer fetches and updates the latest global exit root from the global exit root manager.
 4. Bridge contract on destination L2 chain validates the smtProof against the global exit root on its chain. If passes next step.
 5. Process the `claimAsset`, `claimMessage` on destination L2 chain.
 
 ### Code Walkthrough
 
-We will be using `lxly.js` and `viem` to initiate the `bridgeAndCall` call and `claimMessage` call. We will do Bridge-and-Call from Cardona(lx) to Zkyoto(ly). `bridgeAndCall` is not supported by lxly.js yet so we have to do it manually.
+TheWe will be using lxly.js will be used to initiate the `bridgeAndCall` call and `claimMessage` call.
 
 1. Deploy the same `counter.sol` contract on `zkyoto` testnet.
 2. Call `bridgeAndCall` from cardona to zkyoto: `node scripts/src/bridge_and_call.js`
 
 ```javascript
-import { encodeFunctionData } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import BridgeExtension from "../../ABIs/BridgeExtension";
-import Counter from "../../ABIs/Counter";
-import publicClients from "./utils/viem_clients";
+const { getLxLyClient, tokens, configuration, from } = require('./utils/utils_lxly');
+const { CounterABI } = require("../../ABIs/Counter");
 
-// Encode the amount into a uint256.
-function encodeMetadata(amount) {
-    return encodePacked(["uint256"], [amount]);
-}
+const execute = async () => {
+    const client = await getLxLyClient();
 
-const execute = async () =>{
-    const BRIDGE_EXTENSION_ADDRESS = "0x2311BFA86Ae27FC10E1ad3f805A2F9d22Fc8a6a1";
-
-    const account = privateKeyToAccount(`0x${process.env.USER1_PRIVATE_KEY}`);
-
+    // set token as `eth`.
+    const token = "0x0000000000000000000000000000000000000000";
+    // not bridging any token this time
+    const amount = "0x0";
     // because we are bridging from cardona.
     const sourceNetwork = 1; 
-
-    // set the lx token as `eth`.
-    const lxToken = "0x0000000000000000000000000000000000000000";
-    const amount = "0"; // not bridging any token this time
-    const destinationNetwork = 2; // sending to zkyoto
-    const callAddress = "0x..."; // change it to the counter smart contract deployed on zkyoto.
-    const fallbackAddress = account.address; // if transaction fails, then the funds will be sent back to user's address on destination network.
-    // prepare the call data for the counter smart contract on destination chain.
-    const callData = encodeFunctionData({
-        abi: Counter,
-        functionName: 'increment',
-        args: ['0x3']
-    });
+    // sending to zkyoto.
+    const destinationNetwork = 2;
+    // change it to the counter smart contract deployed on destination network.
+    const callAddress = "0x43854F7B2a37fA13182BBEA76E50FC8e3D298CF1";
+    // if transaction fails, then the funds will be sent back to user's address on destination network.
+    const fallbackAddress = from;
+    // if true, then the global exit root will be updated.
     const forceUpdateGlobalExitRoot = true;
-
-    const { request } = await publicClients[sourceNetwork].simulateContract({
-        address: BRIDGE_EXTENSION_ADDRESS,
-        abi: BridgeExtension,
-        functionName: "bridgeAndCall",
-        args: [
-            lxToken,
+    // get the call Contract ABI instance.
+    const callContract = client.contract(CounterABI, callAddress, destinationNetwork);
+    // prepare the call data for the counter smart contract on destination chain.
+    const callData = await callContract.encodeAbi("increment", "0x4");  
+    
+    let result;
+    // Call bridgeAndCall function.
+    if (client.client.network === "testnet") {
+        console.log("testnet");
+        result = await client.bridgeExtensions[sourceNetwork].bridgeAndCall(
+            token,
             amount,
             destinationNetwork,
             callAddress,
             fallbackAddress,
             callData,
-            forceUpdateGlobalExitRoot
-        ],
-        account,
-        value: amount,
-    });
+            forceUpdateGlobalExitRoot,
+            permitData="0x0", // permitData is optional
+        )
+    } else {
+        console.log("mainnet");
+        result = await client.bridgeExtensions[sourceNetwork].bridgeAndCall(
+            token,
+            amount,
+            destinationNetwork,
+            callAddress,
+            fallbackAddress,
+            callData,
+            forceUpdateGlobalExitRoot,
+        )
+    }
 
-    const result = await client.writeContract(request);
-    console.log("result", result);;
+    console.log("result", result);
+    const txHash = await result.getTransactionHash();
+    console.log("txHash", txHash);
+    const receipt = await result.getReceipt();
+    console.log("receipt", receipt); 
 }
 
 execute().then(() => {

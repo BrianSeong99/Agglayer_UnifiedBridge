@@ -1,5 +1,4 @@
 const { getLxLyClient, tokens, configuration, from, to } = require('./utils/utils_lxly');
-const { Bridge } = require('@maticnetwork/lxlyjs');
 
 const execute = async () => {
     const client = await getLxLyClient();
