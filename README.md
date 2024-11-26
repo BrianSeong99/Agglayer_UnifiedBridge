@@ -508,9 +508,9 @@ constructor(
 ) payable
 ```
 
-The assets transferred from source chain via `bridgeAsset` should have already transferred to this new jumpPoint Smart contract on destination network.
+The assets transferred from source chain via `bridgeAsset` should have already transferred to this new JumpPoint Smart contract on destination network.
 
-1. Once instantiated, first thing is to check the asset that was transferred to `this`, whether is a `ETH` token, `WETH` token, Custom Gas Token, or ERC-20 token.
+1. Once instantiated, first thing is to check the asset that was transferred to this JumpPoint Smart Contract, whether is a `ETH` token, `WETH` token, Custom Gas Token, or ERC-20 token.
 2. Depending on the token type, transfer the token accordingly to the final `callAddress`, and then do the smart contract call with `callData`
 3. If the execution fails on the `callAddress` contract, tokens are transferred to `fallbackAddress`.
 
@@ -539,6 +539,10 @@ The assets transferred from source chain via `bridgeAsset` should have already t
   The bridge contract can only mint, burn, or transfer assets through user-initiated bridge transactions. There is no administrative control over assets locked in the bridge contract. Only users with a balance of the specific tokens have access to their respective assets.
 
 To learn more about the actions for different types of tokens(gas token, Eth token, ERC-20 Token, etc), please check out the above [specs](#assets-bridging)
+
+In conclusion, because of the nature of Unified Bridge's design, there will be tokens locked and showing massive balances of all kinds of tokens in the bridge contract. All these tokens are secured by Ethereum, Mathematics, Safe design, as well as access control, and can only be transferred/mint/burn that matches the [specs](#assets-bridging).
+
+The architecture ensures secure cross-chain communication while maintaining the integrity of the token supply on every chain connected on agglayer through multiple layers of cryptographic verification and mathematical constraints.
 
 # Using it as a Developer
 
@@ -909,3 +913,4 @@ execute().then(() => {
 - https://github.com/0xPolygon/lxly.js
 - https://github.com/agglayer/lxly-bridge-and-call-demos
 - https://github.com/0xrouss/agglayer-scripts
+- https://mirror.xyz/0x88CDEA0b273Dd4C89A51032B69Ccfe6F3FfA495a/VV_f29igjzF8Wkhl3Mbkcj-UYrYLhnnjb2iWJ54JpA4
