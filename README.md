@@ -639,7 +639,7 @@ const execute = async () => {
     // get an api instance of ether token on cardona testnet
     const token = client.erc20(tokens[destinationNetworkId].ether, destinationNetworkId);
 	  // call the `claimAsset` api.
-    const result = await token.claimAsset(bridgeTransactionHash, sourcenNetworkId, {returnTransaction: true});
+    const result = await token.claimAsset(bridgeTransactionHash, sourcenNetworkId, {returnTransaction: false});
     console.log("result", result);
   	// getting the transactionhash if rpc request is sent
     const txHash = await result.getTransactionHash();
@@ -882,7 +882,12 @@ execute().then(() => {
 });
 ```
 
-3. Claim Message after GlobalExitRootManager is synced on zkyoto.  `scripts/src/claim_message.js`, Remember to update `bridgeTransactionHash`, and `destinationNetworkId` to `2`, since zkyoko's network id is 2.
+3. Claim Asset & Claim Message after GlobalExitRootManager is synced on zkyoto.  
+```bash
+node scripts/src/claim_asset.js
+node scripts/src/claim_message.js
+```
+Remember to update `bridgeTransactionHash`, `sourceNetworkId`, and `destinationNetworkId` before running the scripts.
 
 # Future TODO
 
