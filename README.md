@@ -561,6 +561,8 @@ The architecture ensures secure cross-chain communication while maintaining the 
 6. Bridge contract on destination L2 chain validates the smtProof against the global exit root on its chain. If passes next step.
 7. Transfer/Mint the asset to the destination address.
 
+![Bridge Asset L1 to L2](./pics/BridgeAssetProcess.png)
+
 ### Code Walkthrough
 
 We will be using `lxly.js` to initiate the `bridgeAsset` call and `claimAsset` call.
@@ -671,6 +673,8 @@ execute().then(() => {
 4. User/Developer/Dapp/Chain initiates `claimMessage` call, and also provides the smtProof.
 5. Bridge contract on destination L1 chain validates the smtProof against the global exit root on its chain. If passes next step.
 6. Execute `onMessageReceived` process.
+
+![Bridge Message L2 to L1](./pics/BridgeMessageProcess.png)
 
 ### Code Walkthrough
 
@@ -807,6 +811,8 @@ execute().then(() => {
 3. Then destination L2 sequencer fetches and updates the latest global exit root from the global exit root manager.
 4. Bridge contract on destination L2 chain validates the smtProof against the global exit root on its chain. If passes next step.
 5. Process the `claimAsset`, `claimMessage` on destination L2 chain.
+
+![Bridge and Call L2 to L2](./pics/BridgeAndCallProcess.png)
 
 ### Code Walkthrough
 
