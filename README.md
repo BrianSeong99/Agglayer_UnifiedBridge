@@ -666,7 +666,7 @@ execute().then(() => {
 ### Flow for L2 -> L1 Bridging Transactions
 
 1. User/Developer/Dapp initiate `bridgeMessage` call on L2
-2. Bridge contract on L2 appends an exit leaf to local exit tree of the L2, and update its global exit root on L2.
+2. Bridge contract on L2 appends an exit leaf to local exit tree of the L2, and update its local exit root on L2.
 3. Sends the new local exit root to L1 to verify, once passed the L2's local exit root, aka the leaf node in the rollup exit tree will be updated, which will cause a chain of updates to Global exit root updates on L1 and also L1InfoTree updates.
 4. User/Developer/Dapp/Chain initiates `claimMessage` call, and also provides the smtProof.
 5. Bridge contract on destination L1 chain validates the smtProof against the global exit root on its chain. If passes next step.
