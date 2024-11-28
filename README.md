@@ -116,7 +116,7 @@ Once the RollupManager has updated a `localExitRoot` of an L2, it will then upda
 
 ### Global Exit Root, L1 Info Tree, Global Index:
 
-`globalExitRoot` is basically the hash of `rollupExitRoot` and `mainnetExitRoot`. Whenever there's new RER or MER submitted to [`PolygonZkEVMGlobalExitRootV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMGlobalExitRootV2.sol), it will append the new GER to the L1 Info Tree. L2 syncs L1's latest GER by calling `updateExitRoot` function in [`PolygonZkEVMGlobalExitRootL2.sol`] on L2.
+`globalExitRoot` is basically the hash of `rollupExitRoot` and `mainnetExitRoot`. Whenever there's new RER or MER submitted to [`PolygonZkEVMGlobalExitRootV2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMGlobalExitRootV2.sol), it will append the new GER to the L1 Info Tree. L2 syncs L1's latest GER by calling `updateExitRoot` function in [`PolygonZkEVMGlobalExitRootL2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/PolygonZkEVMGlobalExitRootL2.sol) on L2.
 
 `L1InfoTree` is the Sparse Merkle Tree that maintains the GERs. It is a binary tree and has the height of 32. The root is updated every time a new GER is submitted.
 
@@ -139,7 +139,8 @@ The core of the service that acts as the interface for developers, users to init
 Consists of important [contracts](https://github.com/0xPolygonHermez/zkevm-contracts/tree/main/contracts):
 - `PolygonZKEVMBridgeV2.sol`: Bridge contract on both L1 and L2, maintains its own LET. It is the access point for all cross-chain transactions, including `bridgeAsset`, `bridgeMessage`, `claimAsset`, and `claimMessage`. 
 - `PolygonRollupManager.sol`: Rollup Manager contract on L1, all L2 contracts settle on L1 and update their LET via Rollup Manager on L1. Then Rollup Manager updates the RET on L1.
-- `PolygonZkEVMGlobalExitRootV2.sol`: Global Exit Root contract on L1 and L2, its root is updated every time when a new Rollup Exit Root or Mainnet Exit Root is updated.
+- `PolygonZkEVMGlobalExitRootV2.sol`: Global Exit Root contract on L1, its root is updated every time when a new Rollup Exit Root or Mainnet Exit Root is updated.
+- `PolygonZkEVMGlobalExitRootL2.sol`: Global Exit Root contract on L2s, its root is fetched and updated by L2 to sync with the latest GER on L1.
 - and others.
 
 ### Bridge Service
