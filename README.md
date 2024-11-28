@@ -236,8 +236,8 @@ The code go through a few steps to complete the bridging process:
 
 > Note that in case `ETH` is the native token, WETHToken will be at `0x0` address.
 
-1. Emit the `BridgeEvent`
-2. Add the `bridgeAsset` data to the `Local Exit Tree` as a leaf node
+3. Emit the `BridgeEvent`
+4. Add the `bridgeAsset` data to the `Local Exit Tree` as a leaf node
 
 **`claimAsset` code can be found [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonZkEVMBridgeV2.sol#L446), the interface looks as follows:**
 
