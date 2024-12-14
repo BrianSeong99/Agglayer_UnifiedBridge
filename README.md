@@ -818,8 +818,8 @@ execute().then(() => {
 
 TheWe will be using lxly.js will be used to initiate the `bridgeAndCall` call and `claimMessage` call.
 
-1. Deploy the same `counter.sol` contract on `zkyoto` testnet.
-2. Call `bridgeAndCall` from cardona to zkyoto: `node scripts/src/bridge_and_call.js`
+1. Deploy the same `counter.sol` contract on `silicon sepolia` testnet.
+2. Call `bridgeAndCall` from cardona to silicon sepolia: `node scripts/src/bridge_and_call.js`
 
 ```javascript
 const { getLxLyClient, tokens, configuration, from } = require('./utils/utils_lxly');
@@ -834,8 +834,8 @@ const execute = async () => {
     const amount = "0x0";
     // because we are bridging from cardona.
     const sourceNetwork = 1; 
-    // sending to zkyoto.
-    const destinationNetwork = 2;
+    // sending to silicon sepolia.
+    const destinationNetwork = 16;
     // change it to the counter smart contract deployed on destination network.
     const callAddress = "0x43854F7B2a37fA13182BBEA76E50FC8e3D298CF1";
     // if transaction fails, then the funds will be sent back to user's address on destination network.
@@ -889,7 +889,7 @@ execute().then(() => {
 });
 ```
 
-3. Claim Asset & Claim Message after GlobalExitRootManager is synced on zkyoto.  
+3. Claim Asset & Claim Message after GlobalExitRootManager is synced on silicon sepolia.  
 ```bash
 node scripts/src/claim_asset.js
 node scripts/src/claim_message.js

@@ -24,8 +24,8 @@ module.exports = {
             bridgeExtension: process.env.NETWORK_1_BRIDGE_EXTENSION || '0x2311BFA86Ae27FC10E1ad3f805A2F9d22Fc8a6a1',
             isEIP1559Supported: true
         },
-        2: {
-            rpc: process.env.NETWORK_1_RPC || 'https://rpc.startale.com/zkyoto',
+        16: {
+            rpc: process.env.NETWORK_2_RPC || 'https://rpc-sepolia.silicon.network',
             bridgeAddress: process.env.NETWORK_2_BRIDGE || '0x528e26b25a34a4A5d0dbDa1d57D318153d2ED582',
             bridgeExtension: process.env.NETWORK_2_BRIDGE_EXTENSION || '0x2311BFA86Ae27FC10E1ad3f805A2F9d22Fc8a6a1',
             isEIP1559Supported: true
@@ -38,7 +38,7 @@ module.exports = {
         1: {
             ether: '0x0000000000000000000000000000000000000000',
         },
-        2: {
+        16: {
             ether: '0x0000000000000000000000000000000000000000',
         }
     },

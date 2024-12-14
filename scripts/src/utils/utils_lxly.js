@@ -38,11 +38,11 @@ const getLxLyClient = async (network = 'testnet') => {
           from: config.user1.address
         }
       },
-      2: {
-        provider: new HDWalletProvider([config.user1.privateKey], config.configuration[2].rpc),
+      16: {
+        provider: new HDWalletProvider([config.user1.privateKey], config.configuration[16].rpc),
         configuration: {
-          bridgeAddress: config.configuration[2].bridgeAddress,
-          bridgeExtensionAddress: config.configuration[2].bridgeExtensionAddress,
+          bridgeAddress: config.configuration[16].bridgeAddress,
+          bridgeExtensionAddress: config.configuration[16].bridgeExtensionAddress,
           isEIP1559Supported: false
         },
         defaultConfig: {
