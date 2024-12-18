@@ -4,11 +4,11 @@ const execute = async () => {
     // instantiate a lxlyclient
     const client = await getLxLyClient();
     // source NetworkId is 0, since its Sepolia
-    const sourceNetworkId = 1;
+    const sourceNetworkId = 0;
     // get an api instance of ether token on sepolia testnet
     const token = client.erc20(tokens[sourceNetworkId].ether, sourceNetworkId);
     // Set Destination Network as Cardona
-    const destinationNetworkId = 0;
+    const destinationNetworkId = 1;
     // call the `bridgeAsset` api. Bridging 1 eth
     const result = await token.bridgeAsset("10000000000000000", to, destinationNetworkId);
   	// getting the transactionhash if rpc request is sent

@@ -7,13 +7,13 @@ const execute = async () => {
     // instantiate a lxlyclient
   	const client = await getLxLyClient();
     // the source networkId
-    const sourcenNetworkId = 0;
+    const sourceNetworkId = 0;
     // the destination networkId
     const destinationNetworkId = 1;
     // get an api instance of ether token on cardona testnet
     const token = client.erc20(tokens[destinationNetworkId].ether, destinationNetworkId);
     // call the `claimAsset` api.
-    const result = await token.claimAsset(bridgeTransactionHash, sourcenNetworkId, {returnTransaction: false});
+    const result = await token.claimAsset(bridgeTransactionHash, sourceNetworkId, {returnTransaction: false});
     console.log("result", result);
   	// getting the transactionhash if rpc request is sent
     const txHash = await result.getTransactionHash();
