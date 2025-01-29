@@ -50,7 +50,7 @@ This repo explains the design and usage of Unified Bridge and Bridge-and-Call.
   - [L2 -\> L2 using `Bridge-and-Call` in Lxly.js:](#l2---l2-using-bridge-and-call-in-lxlyjs)
     - [Flow for L2 -\> L2 Bridging Transactions](#flow-for-l2---l2-bridging-transactions)
     - [Code Walkthrough](#code-walkthrough-2)
-- [Future TODO](#future-todo)
+- [FAQ](#faq)
 - [Reference](#reference)
 
 
@@ -896,25 +896,13 @@ node scripts/src/claim_message.js
 ```
 Remember to update `bridgeTransactionHash`, `sourceNetworkId`, and `destinationNetworkId` before running the scripts.
 
-# Future TODO
+# FAQ
 
-- [ ] Asset Bridging
-  - [ ] L1 -> L2(ETH as gas token) Transfer foreign ERC-20
-  - [ ] L1 -> L2(ETH as gas token) Transfer native ERC-20
-  - [ ] L1 -> L2(custom gas token) Transfer L2 custom gas token
-  - [ ] L1 -> L2(custom gas token) Transfer WETH
-  - [ ] L2(ETH as gas token) -> L1 Transfer foreign ERC-20
-  - [ ] L2(ETH as gas token) -> L1 Transfer native ERC-20
-  - [ ] L2(custom gas token) -> L1 Transfer L2 custom gas token
-  - [ ] L2(custom gas token) -> L1 Transfer WETH
-  - [ ] L2(custom gas token) -> L2(custom gas token) transfer WETH
-  - [ ] L2(custom gas token) -> L2(custom gas token) transfer source chain gas token
-  - [ ] L2(custom gas token) -> L2(custom gas token) transfer destination chain gas token
-- [ ] Message Bridging
-  - [ ] A more complicated `onMessageReceived` custom contract example.
-- [ ] Bridge-and-Call Bridging
-  - [ ] L1 -> L2 -> L1
-  - [ ] Defi call example transaction
+<details>
+  <summary><b>Can I deploy my own tokens on destination chains instead of having Unified Bridge to help me deploy new token contracts on destination chain?</b></summary>
+  
+  It's possible in Sovereign L2s connected on Agglayer, when the help of bridge maintainer, you will be able to add your own tokens to the Unified Bridge Mapping via [this](https://github.com/0xPolygonHermez/zkevm-contracts/blob/feature/sovereign-bridge/contracts/v2/sovereignChains/BridgeL2SovereignChain.sol#L212) function.
+</details>
 
 # Reference
 
