@@ -1,5 +1,5 @@
 const { getLxLyClient, tokens, configuration, from } = require('./utils/utils_lxly');
-const { CounterABI } = require("../../ABIs/Counter");
+const { Counter } = require("../../ABIs/Counter");
 
 const execute = async () => {
     const client = await getLxLyClient();
@@ -19,7 +19,7 @@ const execute = async () => {
     // if true, then the global exit root will be updated.
     const forceUpdateGlobalExitRoot = true;
     // get the call Contract ABI instance.
-    const callContract = client.contract(CounterABI, callAddress, destinationNetwork);
+    const callContract = client.contract(Counter, callAddress, destinationNetwork);
     // prepare the call data for the counter smart contract on destination chain.
     const callData = await callContract.encodeAbi("increment", "0x4");  
     
