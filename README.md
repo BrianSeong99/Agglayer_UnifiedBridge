@@ -904,6 +904,17 @@ Remember to update `bridgeTransactionHash`, `sourceNetworkId`, and `destinationN
   It's possible in Sovereign L2s connected on Agglayer, when the help of bridge maintainer, you will be able to add your own tokens to the Unified Bridge Mapping via [this](https://github.com/0xPolygonHermez/zkevm-contracts/blob/feature/sovereign-bridge/contracts/v2/sovereignChains/BridgeL2SovereignChain.sol#L212) function.
 </details>
 
+<details>
+  <summary><b>What's the difference between `NetworkID` and `ChainID`? How to get the `NetworkID`? </b></summary>
+
+  `NetworkID` is a chain indexes that Agglayer maintains, where each chain connects on Agglayer will have its own NetworkID in the scope of Agglayer. It is not ChainID which works universally, NetworkID is only for Agglayer.
+  
+  If you want to know the `chainid` to `networkid` mapping checkout this info (Need to go to "contract" tap, and click on "Read as Proxy"):
+  - On "Ethereum Mainnet", you can query using this interface: [chainIDToRollupID](https://etherscan.io/address/0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2#readProxyContract)
+  - On "Sepolia Testnet", the contract is this [one](https://sepolia.etherscan.io/address/0x32d33D5137a7cFFb54c5Bf8371172bcEc5f310ff#readProxyContract)
+  - If you want to get from `rollupid` to `chainid`, you can use: [rollupIDtoRollupData](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonRollupManager.sol#L179) which then will return the RollupData struct that has [chainID](https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/v2/PolygonRollupManager.sol#L70) included.
+</details>
+
 # Reference
 
 - https://docs.polygon.technology/zkEVM/architecture/unified-LxLy/
