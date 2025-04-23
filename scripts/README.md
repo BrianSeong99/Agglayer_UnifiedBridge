@@ -34,7 +34,7 @@ node <file_path>
 let's run a erc20 balance example
 
 ```
-node lxly/erc20/balance.js
+node src/balance.js
 ```
 
 ## Run example using source code
